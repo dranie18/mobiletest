@@ -4,6 +4,7 @@
  */
 
 import 'package:app/src/models/address.dart';
+import 'package:app/src/models/lead.dart';
 import 'package:app/src/models/self_link.dart';
 import 'package:app/src/models/offer_status.dart';
 import 'package:meta/meta.dart';
@@ -25,9 +26,10 @@ class Offer {
     @required this.requestAddress,
     @required this.offerDetailsLink,
   })  : assert(requestTitle != null),
-        assert(status != null),
         assert(creationDate != null),
         assert(authorName != null),
         assert(requestAddress != null),
         assert(offerDetailsLink != null);
+
+  bool get isLead => this is Lead;
 }

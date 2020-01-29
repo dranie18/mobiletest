@@ -19,6 +19,9 @@ class OfferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final statusColor = offer.isLead
+        ? Colors.green
+        : offer.status.wasRead ? Colors.grey : Theme.of(context).accentColor;
     final style = Theme.of(context).textTheme.subhead.copyWith(
       color: Colors.black54
     );
@@ -50,7 +53,7 @@ class OfferCard extends StatelessWidget {
                     fontWeight: FontWeight.bold
                 ),
               ),
-              _OfferStatusIcon(offer: offer),
+              _OfferStatusIcon(color: statusColor),
             ],
           ),
           const DashedDivider(),
@@ -69,10 +72,10 @@ class OfferCard extends StatelessWidget {
 }
 
 class _OfferStatusIcon extends StatelessWidget {
-  final Offer offer;
+  final Color color;
 
-  const _OfferStatusIcon({Key key, this.offer}) :
-        assert(offer != null),
+  const _OfferStatusIcon({Key key, this.color}) :
+        assert(color != null),
         super(key: key);
 
   @override
@@ -82,9 +85,7 @@ class _OfferStatusIcon extends StatelessWidget {
       size: size,
       child: DecoratedBox(
         decoration: BoxDecoration(
-            color: offer.status.wasRead
-                ? Colors.grey
-                : Theme.of(context).accentColor,
+            color: color,
             shape: BoxShape.circle,
         ),
       ),

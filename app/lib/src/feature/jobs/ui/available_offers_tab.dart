@@ -4,7 +4,7 @@
  */
 
 import 'package:app/src/dependency_injection/injector.dart';
-import 'package:app/src/feature/jobs/data/offers_respository.dart';
+import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
 import 'package:app/src/feature/jobs/ui/widgets/offer_card.dart';
 import 'package:app/src/feature/jobs/view_models/offers_view_model.dart';
 import 'package:app/src/ui/common/circular_progress_bar.dart';

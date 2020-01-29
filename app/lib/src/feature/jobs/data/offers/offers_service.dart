@@ -1,10 +1,11 @@
 /*
  *  Copyright 2020 GetNinjas. All rights reserved.
- *  Created by Pedro Massango on 28/1/2020
+ *  Created by Pedro Massango on 29/1/2020
  */
 
 import 'package:app/src/feature/jobs/data/api_models/api_offers_response.dart';
-import 'package:app/src/feature/jobs/data/offers_data_source.dart';
+import 'package:app/src/feature/jobs/data/offers/offers_data_source.dart';
+import 'package:app/src/http_client/endpoints.dart';
 import 'package:app/src/models/address.dart';
 import 'package:app/src/models/offer.dart';
 import 'package:app/src/models/offer_status.dart';
@@ -20,7 +21,7 @@ class OffersService implements OffersDataSource {
   @override
   Future<OperationResult<List<Offer>, String>> getAllOffers() async {
     try {
-      final response = await _dio.get('offers');
+      final response = await _dio.get(Endpoints.offers);
       final responseData = ApiOffersResponse.fromJson(response.data);
       final data = responseData.offers.map((apiOffer) {
         final address = apiOffer.embedded.request.embedded.address;

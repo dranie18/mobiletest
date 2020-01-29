@@ -3,7 +3,7 @@
  *  Created by Pedro Massango on 28/1/2020
  */
 
-import 'package:app/src/feature/jobs/data/offers_respository.dart';
+import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
 import 'package:app/src/models/offer.dart';
 import 'package:mobx/mobx.dart';
 
