@@ -4,6 +4,7 @@
  */
 
 import 'package:app/src/models/offer.dart';
+import 'package:app/src/ui/common/dashed_divider.dart';
 import 'package:app/src/utils/date_time_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -26,7 +27,7 @@ class OfferCard extends StatelessWidget {
       width: double.infinity,
       height: 160,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -41,12 +42,18 @@ class OfferCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Text(offer.requestTitle,
-              style: Theme.of(context).textTheme.headline.copyWith(
-                fontWeight: FontWeight.bold
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(offer.requestTitle,
+                style: Theme.of(context).textTheme.headline.copyWith(
+                    fontWeight: FontWeight.bold
+                ),
               ),
+              _OfferStatusIcon(offer: offer),
+            ],
           ),
-          Divider(thickness: 1.5,),
+          const DashedDivider(),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
@@ -60,3 +67,28 @@ class OfferCard extends StatelessWidget {
     );
   }
 }
+
+class _OfferStatusIcon extends StatelessWidget {
+  final Offer offer;
+
+  const _OfferStatusIcon({Key key, this.offer}) :
+        assert(offer != null),
+        super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final size = Size.fromRadius(8);
+    return SizedBox.fromSize(
+      size: size,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+            color: offer.status.wasRead
+                ? Colors.grey
+                : Theme.of(context).accentColor,
+            shape: BoxShape.circle,
+        ),
+      ),
+    );
+  }
+}
+

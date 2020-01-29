@@ -33,7 +33,8 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Column(
+    return ListView(
+      primary: true,
       children: <Widget>[
         Observer(
           builder: (_) => Visibility(
