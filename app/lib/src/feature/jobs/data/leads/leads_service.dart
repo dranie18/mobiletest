@@ -48,7 +48,7 @@ class LeadsService implements LeadsDataSource {
       return Lead(
           requestTitle: leadEmbedded.request.title,
           creationDate: apiOffer.createdAt,
-          offerDetailsLink: SelfLink(apiOffer.links.self.href),
+          detailsLink: SelfLink(apiOffer.links.self.href),
           authorName: leadEmbedded.user.name,
           authorEmail: leadEmbedded.user?.email ?? '',
           authorCellphone: leadEmbedded.user?.cellphone ?? '',

@@ -50,7 +50,7 @@ class OffersService implements OffersDataSource {
       return Offer(
           requestTitle: apiOffer.embedded.request.title,
           authorName: apiOffer.embedded.request.embedded.user.name,
-          offerDetailsLink: SelfLink(apiOffer.links.self.href),
+          detailsLink: SelfLink(apiOffer.links.self.href),
           creationDate: apiOffer.embedded.request.createdAt,
           status: OfferStatus(apiOffer.state),
           requestAddress: Address(city: address.city, neighborhood: address.neighborhood, uf: address.uf)

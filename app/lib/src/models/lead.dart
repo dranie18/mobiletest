@@ -17,7 +17,7 @@ class Lead extends Offer {
     @required DateTime creationDate,
     @required String authorName,
     @required Address requestAddress,
-    @required SelfLink offerDetailsLink,
+    @required SelfLink detailsLink,
     @required this.authorCellphone,
     @required this.authorEmail,
   })  : assert(authorCellphone != null),
@@ -27,7 +27,7 @@ class Lead extends Offer {
           requestTitle: requestTitle,
           creationDate: creationDate,
           authorName: authorName,
-          offerDetailsLink: offerDetailsLink,
+          detailsLink: detailsLink,
           requestAddress: requestAddress,
         );
 }

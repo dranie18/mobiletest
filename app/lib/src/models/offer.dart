@@ -16,7 +16,7 @@ class Offer {
   final String authorName;
   final Address requestAddress;
 
-  final SelfLink offerDetailsLink;
+  final SelfLink detailsLink;
 
   Offer({
     @required this.requestTitle,
@@ -24,12 +24,12 @@ class Offer {
     @required this.creationDate,
     @required this.authorName,
     @required this.requestAddress,
-    @required this.offerDetailsLink,
+    @required this.detailsLink,
   })  : assert(requestTitle != null),
         assert(creationDate != null),
         assert(authorName != null),
         assert(requestAddress != null),
-        assert(offerDetailsLink != null);
+        assert(detailsLink != null);
 
   bool get isLead => this is Lead;
 }
