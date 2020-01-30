@@ -60,7 +60,7 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
 
     return SmartRefresher(
       controller: _refreshController,
-      onRefresh: () => offersViewModel.refreshData(),
+      onRefresh: () => offersViewModel.refreshOffers(),
       child: ListView(
           primary: true,
           children: <Widget>[
