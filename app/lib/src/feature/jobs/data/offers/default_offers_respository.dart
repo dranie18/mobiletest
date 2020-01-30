@@ -7,6 +7,7 @@ import 'package:app/src/feature/jobs/data/offers/offers_data_source.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
 import 'package:app/src/models/offer.dart';
 import 'package:app/src/models/operation_result.dart';
+import 'package:app/src/models/self_link.dart';
 
 class DefaultOffersRepository implements OffersRepository {
   final OffersDataSource remoteDataSource;
@@ -14,9 +15,29 @@ class DefaultOffersRepository implements OffersRepository {
   DefaultOffersRepository(this.remoteDataSource)
       : assert(remoteDataSource != null);
 
+  SelfLink refreshOffersLink;
+
   @override
-  Future<OperationResult<List<Offer>, String>> getAllOffers() {
-    // TODO: implement getAllOffers
-    return remoteDataSource.getAllOffers();
+  Future<OperationResult<List<Offer>, String>> getAllOffers() async {
+    final result = await remoteDataSource.getAllOffers();
+    if (result.hasSucceeded) {
+      refreshOffersLink = result.data.refreshLink;
+      //TODO: save offers locally
+      return OperationResult.success(result.data.offers);
+    }
+    return OperationResult.failed(result.error);
   }
+
+  @override
+  Future<OperationResult<List<Offer>, String>> refreshOffers() async {
+    ArgumentError.checkNotNull(refreshOffersLink, 'refreshOffersLink');
+
+    final result = await remoteDataSource.refreshOffers(refreshOffersLink);
+    if (result.hasSucceeded) {
+      //TODO: update local offers in database
+      return OperationResult.success(result.data.offers);
+    }
+    return OperationResult.failed(result.error);
+  }
+
 }

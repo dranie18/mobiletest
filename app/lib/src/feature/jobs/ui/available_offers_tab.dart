@@ -10,6 +10,8 @@ import 'package:app/src/feature/jobs/view_models/offers_view_model.dart';
 import 'package:app/src/ui/common/circular_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class AvailableOffersTab extends StatefulWidget {
   @override
@@ -19,11 +21,34 @@ class AvailableOffersTab extends StatefulWidget {
 class _AvailableOffersTabState extends State<AvailableOffersTab>
   with AutomaticKeepAliveClientMixin {
   final offersViewModel = OffersViewModel(injector.get<OffersRepository>());
+  final List<ReactionDisposer> disposers = [];
+
+  RefreshController _refreshController;
+
+  void _registerViewModelListeners() {
+    disposers.add(reaction<bool>((_) => offersViewModel.isLoading, (isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (isLoading) {
+          _refreshController.requestRefresh();
+        } else {
+          _refreshController.refreshCompleted();
+        }
+      });
+    }));
+  }
 
   @override
   void initState() {
     super.initState();
+    _refreshController = RefreshController();
+    _registerViewModelListeners();
     offersViewModel.loadAllOffers();
+  }
+
+  @override
+  void dispose() {
+    disposers.forEach((disposer) => disposer());
+    super.dispose();
   }
 
   @override
@@ -33,46 +58,39 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return ListView(
-      primary: true,
-      children: <Widget>[
-        Observer(
-          builder: (_) => Visibility(
-            visible: offersViewModel.hasData,
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.only(top: 8),
-              itemCount: offersViewModel.offers.length,
-              itemBuilder: (_, index) {
-                final item = offersViewModel.offers.elementAt(index);
-                return OfferCard(offer: item);
-              },
-            ),
-          ),
-        ),
-        Observer(
-          builder: (_) => Visibility(
-            visible: offersViewModel.hasError,
-            child: Column(
-              children: <Widget>[
-                Text(offersViewModel.errorMessage, style: Theme.of(context).textTheme.headline,),
-              ],
-            ),
-          ),
-        ),
-        Observer(
-          builder: (_) => Visibility(
-            visible: offersViewModel.isLoading,
-            child: Align(
-              alignment: Alignment.center,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: CircularProgressbar(),
+    return SmartRefresher(
+      controller: _refreshController,
+      onRefresh: () => offersViewModel.refreshData(),
+      child: ListView(
+          primary: true,
+          children: <Widget>[
+            Observer(
+              builder: (_) => Visibility(
+                visible: offersViewModel.hasData,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  primary: false,
+                  padding: const EdgeInsets.only(top: 8),
+                  itemCount: offersViewModel.offers.length,
+                  itemBuilder: (_, index) {
+                    final item = offersViewModel.offers.elementAt(index);
+                    return OfferCard(offer: item);
+                  },
+                ),
               ),
             ),
-          )
+            Observer(
+              builder: (_) => Visibility(
+                visible: offersViewModel.hasError,
+                child: Column(
+                  children: <Widget>[
+                    Text(offersViewModel.errorMessage, style: Theme.of(context).textTheme.headline,),
+                  ],
+                ),
+              ),
+            ),
+          ],
         )
-      ],
     );
   }
 }

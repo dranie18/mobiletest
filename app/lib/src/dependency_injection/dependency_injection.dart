@@ -13,7 +13,7 @@ import 'package:app/src/feature/jobs/data/offers/offers_data_source.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_service.dart';
 import 'package:app/src/http_client/dio_builder.dart';
-import 'package:app/src/http_client/endpoints.dart';
+import 'package:app/src/http_client/api_endpoints.dart';
 import 'package:dio/dio.dart';
 
 class DependencyInjection {
@@ -28,7 +28,7 @@ class DependencyInjection {
   void _setupDio() {
     if (_dio == null) {
       _dio = DioBuilder()
-          .setBaseUrl(Endpoints.entryPoint)
+          .setBaseUrl(ApiEndpoints.entryPoint)
           .setReceiveTimeout(30000)
           .setSendTimeout(30000)
           .build();

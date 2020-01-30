@@ -29,6 +29,8 @@ dependencies:
   json_annotation: ^3.0.1
   #  i18n
   intl:
+  # Pull to refresh
+  pull_to_refresh: ^1.5.8
 
 dev_dependencies:
   flutter_test:

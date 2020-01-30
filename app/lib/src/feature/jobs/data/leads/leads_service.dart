@@ -5,7 +5,7 @@
 
 import 'package:app/src/feature/jobs/data/api_models/api_leads_response.dart';
 import 'package:app/src/feature/jobs/data/leads/leads_data_source.dart';
-import 'package:app/src/http_client/endpoints.dart';
+import 'package:app/src/http_client/api_endpoints.dart';
 import 'package:app/src/models/address.dart';
 import 'package:app/src/models/lead.dart';
 import 'package:app/src/models/operation_result.dart';
@@ -20,7 +20,7 @@ class LeadsService implements LeadsDataSource {
   @override
   Future<OperationResult<List<Lead>, String>> getAllLeads() async {
     try {
-      final response = await _dio.get(Endpoints.leads);
+      final response = await _dio.get(ApiEndpoints.leads);
       final responseData = ApiLeadsResponse.fromJson(response.data);
       final data = responseData.leads.map((apiOffer) {
         final leadEmbedded = apiOffer.embedded;

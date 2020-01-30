@@ -17,7 +17,7 @@ abstract class _OffersViewModelBase with Store {
   _OffersViewModelBase(this._offersRepository)
       : assert(_offersRepository != null);
 
-  static final defaultErrorMessage = '';
+  static final _defaultErrorMessage = '';
 
   @observable
   List<Offer> offers = [];
@@ -26,18 +26,18 @@ abstract class _OffersViewModelBase with Store {
   bool isLoading = false;
 
   @observable
-  String errorMessage = defaultErrorMessage;
+  String errorMessage = _defaultErrorMessage;
 
   @computed
   bool get hasData => offers.isNotEmpty;
 
   @computed
-  bool get hasError => errorMessage != defaultErrorMessage;
+  bool get hasError => errorMessage != _defaultErrorMessage;
 
   @action
   void loadAllOffers() {
     isLoading = true;
-    errorMessage = defaultErrorMessage;
+    errorMessage = _defaultErrorMessage;
 
     _offersRepository.getAllOffers().then((result) {
       isLoading = result.isPending;
@@ -50,4 +50,23 @@ abstract class _OffersViewModelBase with Store {
     });
   }
 
+  @action
+  void refreshData() {
+    if (isLoading) {
+      return;
+    }
+
+    isLoading = true;
+    errorMessage = _defaultErrorMessage;
+
+    _offersRepository.refreshOffers().then((result) {
+      isLoading = result.isPending;
+
+      if (result.hasSucceeded) {
+        offers = result.data;
+      } else if (result.hasFailed) {
+        errorMessage = result.error;
+      }
+    });
+  }
 }
