@@ -35,6 +35,10 @@ abstract class _LeadsViewModelBase with Store {
 
   @action
   void loadLeads() {
+    if (isLoading) {
+      return;
+    }
+
     isLoading = true;
     errorMessage = _defaultErrorMessage;
 
@@ -49,4 +53,22 @@ abstract class _LeadsViewModelBase with Store {
     });
   }
 
+  @action
+  void refreshLeads() {
+    if (isLoading) {
+      return;
+    }
+
+    isLoading = true;
+    errorMessage = _defaultErrorMessage;
+
+    _leadsRepository.refreshLeads().then((result) {
+      isLoading = result.isPending;
+      if (result.hasSucceeded) {
+        leads = result.data;
+      } else if (result.hasFailed) {
+        errorMessage = result.error;
+      }
+    });
+  }
 }

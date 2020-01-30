@@ -22,7 +22,6 @@ class DefaultOffersRepository implements OffersRepository {
     final result = await remoteDataSource.getAllOffers();
     if (result.hasSucceeded) {
       refreshOffersLink = result.data.refreshLink;
-      //TODO: save offers locally
       return OperationResult.success(result.data.offers);
     }
     return OperationResult.failed(result.error);
@@ -34,7 +33,7 @@ class DefaultOffersRepository implements OffersRepository {
 
     final result = await remoteDataSource.refreshOffers(refreshOffersLink);
     if (result.hasSucceeded) {
-      //TODO: update local offers in database
+      refreshOffersLink = result.data.refreshLink;
       return OperationResult.success(result.data.offers);
     }
     return OperationResult.failed(result.error);

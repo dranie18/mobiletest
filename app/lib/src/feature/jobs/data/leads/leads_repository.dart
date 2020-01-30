@@ -9,4 +9,6 @@ import 'package:app/src/models/operation_result.dart';
 abstract class LeadsRepository {
 
   Future<OperationResult<List<Lead>, String>> getAllLeads();
+
+  Future<OperationResult<List<Lead>, String>> refreshLeads();
 }

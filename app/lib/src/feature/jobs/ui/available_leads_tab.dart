@@ -7,9 +7,10 @@ import 'package:app/src/dependency_injection/injector.dart';
 import 'package:app/src/feature/jobs/data/leads/leads_repository.dart';
 import 'package:app/src/feature/jobs/ui/widgets/offer_card.dart';
 import 'package:app/src/feature/jobs/view_models/leads_view_model.dart';
-import 'package:app/src/ui/common/circular_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class AvailableLeadsTab extends StatefulWidget {
   @override
@@ -19,11 +20,34 @@ class AvailableLeadsTab extends StatefulWidget {
 class _AvailableLeadsTabState extends State<AvailableLeadsTab>
   with AutomaticKeepAliveClientMixin {
   final _leadsViewModel = LeadsViewModel(injector.get<LeadsRepository>());
+  final List<ReactionDisposer> disposers = [];
+
+  final RefreshController _refreshController = RefreshController();
+
+  void _registerViewModelListeners() {
+    disposers.add(
+      reaction((_) => _leadsViewModel.isLoading, (isLoading) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (isLoading)
+          _refreshController.requestRefresh();
+        else
+          _refreshController.refreshCompleted();
+      });
+    })
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+    _registerViewModelListeners();
     _leadsViewModel.loadLeads();
+  }
+
+  @override
+  void dispose() {
+    disposers.forEach((disposer) => disposer());
+    super.dispose();
   }
 
   @override
@@ -33,49 +57,42 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return ListView(
-      primary: true,
-      children: <Widget>[
-        Observer(
-          builder: (_) => Visibility(
-            visible: _leadsViewModel.hasData,
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.only(top: 8),
-              itemCount: _leadsViewModel.leads.length,
-              itemBuilder: (_, index) {
-                final item = _leadsViewModel.leads.elementAt(index);
-                return OfferCard(offer: item);
-              },
-            ),
-          ),
-        ),
-        Observer(
-          builder: (_) => Visibility(
-            visible: _leadsViewModel.hasError,
-            child: Column(
-              children: <Widget>[
-                Text(
-                  _leadsViewModel.errorMessage,
-                  style: Theme.of(context).textTheme.headline,
-                ),
-              ],
-            ),
-          ),
-        ),
-        Observer(
+    return SmartRefresher(
+      controller: _refreshController,
+      onRefresh: () => _leadsViewModel.refreshLeads(),
+      child: ListView(
+        primary: true,
+        children: <Widget>[
+          Observer(
             builder: (_) => Visibility(
-              visible: _leadsViewModel.isLoading,
-              child: Align(
-                alignment: Alignment.center,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: CircularProgressbar(),
-                ),
+              visible: _leadsViewModel.hasData,
+              child: ListView.builder(
+                shrinkWrap: true,
+                primary: false,
+                padding: const EdgeInsets.only(top: 8),
+                itemCount: _leadsViewModel.leads.length,
+                itemBuilder: (_, index) {
+                  final item = _leadsViewModel.leads.elementAt(index);
+                  return OfferCard(offer: item);
+                },
               ),
-            )
-        )
-      ],
+            ),
+          ),
+          Observer(
+            builder: (_) => Visibility(
+              visible: _leadsViewModel.hasError,
+              child: Column(
+                children: <Widget>[
+                  Text(
+                    _leadsViewModel.errorMessage,
+                    style: Theme.of(context).textTheme.headline,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

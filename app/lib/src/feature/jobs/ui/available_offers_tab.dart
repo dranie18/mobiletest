@@ -7,7 +7,6 @@ import 'package:app/src/dependency_injection/injector.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
 import 'package:app/src/feature/jobs/ui/widgets/offer_card.dart';
 import 'package:app/src/feature/jobs/view_models/offers_view_model.dart';
-import 'package:app/src/ui/common/circular_progress_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -23,7 +22,7 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
   final offersViewModel = OffersViewModel(injector.get<OffersRepository>());
   final List<ReactionDisposer> disposers = [];
 
-  RefreshController _refreshController;
+  final RefreshController _refreshController = RefreshController();
 
   void _registerViewModelListeners() {
     disposers.add(reaction<bool>((_) => offersViewModel.isLoading, (isLoading) {
@@ -40,7 +39,6 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
   @override
   void initState() {
     super.initState();
-    _refreshController = RefreshController();
     _registerViewModelListeners();
     offersViewModel.loadAllOffers();
   }
