@@ -5,8 +5,10 @@
 
 import 'package:app/src/dependency_injection/injector.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
+import 'package:app/src/feature/jobs/ui/offer_details_page.dart';
 import 'package:app/src/feature/jobs/ui/widgets/offer_card.dart';
 import 'package:app/src/feature/jobs/view_models/offers_view_model.dart';
+import 'package:app/src/models/offer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -34,6 +36,12 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
         }
       });
     }));
+  }
+
+  void _onOfferTap(BuildContext context, Offer offer) {
+    Navigator.push(context, MaterialPageRoute(
+      builder: (_) => OfferDetailsPage(offer: offer)
+    ));
   }
 
   @override
@@ -70,9 +78,11 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
                   primary: false,
                   padding: const EdgeInsets.only(top: 8),
                   itemCount: offersViewModel.offers.length,
-                  itemBuilder: (_, index) {
+                  itemBuilder: (context, index) {
                     final item = offersViewModel.offers.elementAt(index);
-                    return OfferCard(offer: item);
+                    return GestureDetector(
+                      onTap: () => _onOfferTap(context, item),
+                        child: OfferCard(offer: item));
                   },
                 ),
               ),

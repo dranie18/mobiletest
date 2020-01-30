@@ -7,11 +7,14 @@ import 'package:flutter/material.dart';
 
 class DashedDivider extends StatelessWidget {
   final Color color;
+  final double padding;
 
   const DashedDivider({
     Key key,
+    this.padding = 0,
     this.color = Colors.grey,
   })  : assert(color != null),
+        assert(padding != null),
         super(key: key);
 
   @override
@@ -23,14 +26,17 @@ class DashedDivider extends StatelessWidget {
         final dashHeight = dashWidth * .3;
         final dashCount = (parentWidth / (2 * dashWidth)).floor();
 
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(dashCount, (index) {
-            return SizedBox.fromSize(
-              size: Size(dashWidth, dashHeight),
-              child: DecoratedBox(decoration: BoxDecoration(color: color)),
-            );
-          }),
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: padding),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: List.generate(dashCount, (index) {
+              return SizedBox.fromSize(
+                size: Size(dashWidth, dashHeight),
+                child: DecoratedBox(decoration: BoxDecoration(color: color)),
+              );
+            }),
+          ),
         );
       },
     );
