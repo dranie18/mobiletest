@@ -6,6 +6,7 @@
 import 'package:app/src/feature/jobs/data/offers/offers_data_source.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
 import 'package:app/src/models/offer.dart';
+import 'package:app/src/models/offer_details.dart';
 import 'package:app/src/models/operation_result.dart';
 import 'package:app/src/models/self_link.dart';
 
@@ -16,6 +17,7 @@ class DefaultOffersRepository implements OffersRepository {
       : assert(remoteDataSource != null);
 
   SelfLink refreshOffersLink;
+
 
   @override
   Future<OperationResult<List<Offer>, String>> getAllOffers() async {
@@ -38,5 +40,13 @@ class DefaultOffersRepository implements OffersRepository {
     }
     return OperationResult.failed(result.error);
   }
+
+  @override
+  Future<OperationResult<OfferDetails, String>> getOfferDetails(SelfLink offerDetailsLink) {
+    // TODO: implement getOfferDetails
+    return remoteDataSource.getOfferDetails(offerDetailsLink);
+  }
+
+
 
 }

@@ -6,6 +6,9 @@
 import 'package:flutter/material.dart';
 
 class CircularProgressbar extends StatelessWidget {
+
+  const CircularProgressbar();
+
   @override
   Widget build(BuildContext context) {
     return CircularProgressIndicator(
