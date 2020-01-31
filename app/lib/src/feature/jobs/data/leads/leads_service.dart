@@ -69,7 +69,9 @@ class LeadsService implements LeadsDataSource {
   @override
   Future<OperationResult<OffersResult, String>> getAllLeads() async {
     try {
-      final response = await _dio.get(ApiEndpoints.leads);
+      final entryPointResponse = await _dio.get(ApiEndpoints.entryPoint);
+      final leadsUrl = entryPointResponse.data['_links']['leads']['href'];
+      final response = await _dio.get(leadsUrl);
       final result = _parseResponse(response.data);
       return OperationResult.success(result);
     } on DioError catch (e) {

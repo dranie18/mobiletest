@@ -5,7 +5,4 @@
 
 class ApiEndpoints {
   static final entryPoint = 'http://testemobile.getninjas.com.br/';
-
-  static final offers = 'offers';
-  static final leads = 'leads';
 }

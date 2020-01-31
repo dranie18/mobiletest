@@ -51,4 +51,13 @@ class DefaultOffersRepository implements OffersRepository {
   Future<OperationResult<LeadDetails, String>> acceptOffer(SelfLink acceptOfferLink) {
     return _remoteDataSource.acceptOffer(acceptOfferLink);
   }
+
+  @override
+  Future<OperationResult<void, String>> denyOffer(SelfLink denyOfferLink) async {
+    final result = await _remoteDataSource.denyOffer(denyOfferLink);
+    if (result.hasSucceeded) {
+      return OperationResult.success(null);
+    }
+    return OperationResult.failed(result.error);
+  }
 }

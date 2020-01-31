@@ -10,15 +10,8 @@ Dio _dioInstance;
 class DioBuilder {
   int sendTimeout;
   int receiveTimeout;
-  String baseUrl;
 
   DioBuilder();
-
-  DioBuilder setBaseUrl(String baseUrl) {
-    assert(baseUrl != null);
-    this.baseUrl = baseUrl;
-    return this;
-  }
 
   DioBuilder setSendTimeout(int sendTimeout) {
     assert(sendTimeout != null);
@@ -35,7 +28,6 @@ class DioBuilder {
   Dio build() {
     if (_dioInstance == null) {
       _dioInstance = Dio();
-      _dioInstance.options.baseUrl = baseUrl;
       _dioInstance.options.sendTimeout = sendTimeout;
       _dioInstance.options.receiveTimeout = receiveTimeout;
     }

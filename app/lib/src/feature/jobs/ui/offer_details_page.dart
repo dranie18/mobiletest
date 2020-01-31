@@ -34,6 +34,8 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
 
   AcceptOfferViewModel get _acceptOfferViewModel =>
       _detailsViewModel.acceptOfferViewModel;
+  DenyOfferViewModel get _denyOfferViewModel =>
+      _detailsViewModel.denyOfferViewModel;
 
   final List<ReactionDisposer> _disposers = [];
 
@@ -60,10 +62,18 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
       if (hasError)
         _showSnackBar(_acceptOfferViewModel.errorMessage);
     }));
+    _disposers.add(reaction((_) => _denyOfferViewModel.hasError, (hasError) {
+      if (hasError)
+        _showSnackBar(_denyOfferViewModel.errorMessage);
+    }));
     _disposers.add(when((_) => _acceptOfferViewModel.isOfferAccepted, () {
       Navigator.pushReplacement(context, MaterialPageRoute(
         builder: (_) => LeadDetailsPage(leadDetails: _acceptOfferViewModel.acceptedOffer,)
       ));
+    }));
+    _disposers.add(when((_) => _denyOfferViewModel.isOfferDenied, () {
+      // When a offer is denied we are just navigating back
+      Navigator.pop(context);
     }));
   }
 
@@ -110,8 +120,8 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
         builder: (context) {
           final hasData = _detailsViewModel.hasData;
           final isLoadingData = _detailsViewModel.isLoading;
-          final isAcceptingOffer = _detailsViewModel.acceptOfferViewModel
-              .isLoading;
+          final isAcceptingOffer = _acceptOfferViewModel.isLoading;
+          final isDenyingOffer = _denyOfferViewModel.isLoading;
 
           return Visibility(
             visible: !isLoadingData && hasData,
@@ -121,10 +131,10 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
                   child: ProgressButton(
                     Text('Recusar'.toUpperCase(), style: answerButtonsStyle),
                     height: _answerButtonsHeight,
-                    isLoading: isLoadingData,
+                    isLoading: isDenyingOffer,
                     disable: isAcceptingOffer,
                     color: Colors.grey,
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => _detailsViewModel.denyOffer(),
                 ),
                 ),
                 Expanded(
@@ -133,6 +143,7 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
                     height: _answerButtonsHeight,
                     color: Colors.green,
                     isLoading: isAcceptingOffer,
+                    disable: isDenyingOffer,
                     onPressed: () => _detailsViewModel.acceptOffer(),
                 ),
                 ),

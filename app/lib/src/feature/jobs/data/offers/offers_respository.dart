@@ -18,4 +18,6 @@ abstract class OffersRepository {
       SelfLink offerDetailsLink);
 
   Future<OperationResult<LeadDetails, String>> acceptOffer(SelfLink acceptOfferLink);
+
+  Future<OperationResult<void, String>> denyOffer(SelfLink denyOfferLink);
 }

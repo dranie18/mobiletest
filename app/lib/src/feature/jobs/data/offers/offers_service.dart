@@ -97,7 +97,9 @@ class OffersService implements OffersDataSource {
   @override
   Future<OperationResult<OffersResult, String>> getAllOffers() async {
     try {
-      final response = await _dio.get(ApiEndpoints.offers);
+      final entryPointResponse = await _dio.get(ApiEndpoints.entryPoint);
+      final offersUrl = entryPointResponse.data['_links']['offers']['href'];
+      final response = await _dio.get(offersUrl);
       final data = _parseOffersResult(response.data);
       return OperationResult.success(data);
     } on DioError catch(dioError) {
@@ -132,6 +134,17 @@ class OffersService implements OffersDataSource {
     try {
       final response = await _dio.get(acceptOfferLink.href);
       final data = _parseLeadDetails(response.data);
+      return OperationResult.success(data);
+    } on DioError catch(dioError) {
+      return OperationResult.failed(dioError.message);
+    }
+  }
+
+  @override
+  Future<OperationResult<OffersResult, String>> denyOffer(SelfLink denyOfferLink) async {
+    try {
+      final response = await _dio.get(denyOfferLink.href);
+      final data = _parseOffersResult(response.data);
       return OperationResult.success(data);
     } on DioError catch(dioError) {
       return OperationResult.failed(dioError.message);

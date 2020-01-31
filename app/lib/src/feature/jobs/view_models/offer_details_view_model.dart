@@ -18,10 +18,12 @@ class OfferDetailsViewModel = _OfferDetailsViewModelBase
 abstract class _OfferDetailsViewModelBase with Store {
   final OffersRepository _offersRepository;
   final AcceptOfferViewModel acceptOfferViewModel;
+  final DenyOfferViewModel denyOfferViewModel;
 
   _OfferDetailsViewModelBase(this._offersRepository)
       : assert(_offersRepository != null),
-        acceptOfferViewModel = AcceptOfferViewModel(_offersRepository);
+        acceptOfferViewModel = AcceptOfferViewModel(_offersRepository),
+        denyOfferViewModel = DenyOfferViewModel(_offersRepository);
 
   static final _defaultErrorMessage = '';
 
@@ -60,6 +62,12 @@ abstract class _OfferDetailsViewModelBase with Store {
   void acceptOffer() {
     if (hasData) {
       acceptOfferViewModel.acceptOffer(offerDetails.acceptOfferLink);
+    }
+  }
+
+  void denyOffer() {
+    if (hasData) {
+      denyOfferViewModel.denyOffer(offerDetails.rejectOfferLink);
     }
   }
 }
@@ -101,6 +109,46 @@ abstract class _AcceptOfferViewModelBase with Store {
       if (result.hasSucceeded) {
         acceptedOffer = result.data;
         isOfferAccepted = result.hasSucceeded;
+      } else if (result.hasFailed) {
+        errorMessage = result.error;
+      }
+    });
+  }
+}
+
+class DenyOfferViewModel = _DenyOfferViewModelBase with _$DenyOfferViewModel;
+
+abstract class _DenyOfferViewModelBase with Store {
+  final OffersRepository _offersRepository;
+
+  _DenyOfferViewModelBase(this._offersRepository)
+      : assert(_offersRepository != null);
+
+  static final _defaultErrorMessage = '';
+
+  @observable
+  bool isLoading = false;
+
+  @observable
+  String errorMessage = _defaultErrorMessage;
+
+  @observable
+  bool isOfferDenied = false;
+
+  @computed
+  bool get hasError => errorMessage != _defaultErrorMessage;
+
+  @action
+  void denyOffer(SelfLink denyOfferLink) {
+    ArgumentError.checkNotNull(denyOfferLink);
+
+    isLoading = true;
+    errorMessage = _defaultErrorMessage;
+
+    _offersRepository.denyOffer(denyOfferLink).then((result) {
+      isLoading = false;
+      if (result.hasSucceeded) {
+        isOfferDenied = result.hasSucceeded;
       } else if (result.hasFailed) {
         errorMessage = result.error;
       }

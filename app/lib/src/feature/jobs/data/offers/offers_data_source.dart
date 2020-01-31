@@ -19,4 +19,6 @@ abstract class OffersDataSource {
   Future<OperationResult<OfferDetails, String>> getOfferDetails(SelfLink offerDetailsLink);
 
   Future<OperationResult<LeadDetails, String>> acceptOffer(SelfLink acceptOfferLink);
+
+  Future<OperationResult<OffersResult, String>> denyOffer(SelfLink denyOfferLink);
 }
