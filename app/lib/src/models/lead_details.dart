@@ -41,4 +41,7 @@ class LeadDetails extends Offer {
           requestAddress: requestAddress,
           detailsLink: SelfLink.noLink(),
         );
+
+  // assuming that we always have at least one phone in the list
+  Phone getAuthorPhone() => authorPhones.first;
 }

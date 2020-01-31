@@ -13,6 +13,9 @@ import 'package:app/src/ui/common/circular_progress_bar.dart';
 import 'package:app/src/ui/common/dashed_divider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
+
+final _scaffoldState = GlobalKey<ScaffoldState>();
 
 class LeadDetailsPage extends StatefulWidget {
   final LeadDetails leadDetails;
@@ -30,16 +33,39 @@ class LeadDetailsPage extends StatefulWidget {
 class _LeadDetailsPageState extends State<LeadDetailsPage> {
   final _detailsViewModel = LeadDetailsViewModel(injector.get<LeadsRepository>());
 
+  final List<ReactionDisposer> disposers = [];
+
   final _answerButtonsHeight = 50.0;
+
+  void _registerListeners() {
+    disposers.add(reaction((_) => _detailsViewModel.errorLaunchingWhatsApp, (hasError) {
+      if (hasError)
+        _showSnackBar('WhatsApp não instalado');
+    }));
+  }
+
+  void _showSnackBar(String message) {
+    _scaffoldState.currentState.removeCurrentSnackBar();
+    _scaffoldState.currentState.showSnackBar(
+      SnackBar(content: Text(message))
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+    _registerListeners();
     if (widget.leadDetails != null) {
       _detailsViewModel.setLeadDetails(widget.leadDetails);
     } else {
       _detailsViewModel.loadLeadDetails(widget.leadDetailsLink);
     }
+  }
+
+  @override
+  void dispose() {
+    disposers.forEach((disposer) => disposer());
+    super.dispose();
   }
 
   @override
@@ -52,6 +78,7 @@ class _LeadDetailsPageState extends State<LeadDetailsPage> {
     );
 
     return Scaffold(
+      key: _scaffoldState,
       appBar: AppBar(
         title: Observer(
           builder: (_) {
@@ -104,7 +131,7 @@ class _LeadDetailsPageState extends State<LeadDetailsPage> {
                           child: Text('Ligar'.toUpperCase(), style: answerButtonsStyle),
                           height: _answerButtonsHeight,
                           color: Colors.white,
-                          onPressed: ()  {/*TODO: start call intent*/},
+                          onPressed: ()  => _detailsViewModel.callClient(),
                         ),
                       ),
                       VerticalDivider(
@@ -119,7 +146,7 @@ class _LeadDetailsPageState extends State<LeadDetailsPage> {
                           child: Text('WhatsApp'.toUpperCase(), style: answerButtonsStyle),
                           height: _answerButtonsHeight,
                           color: Colors.white,
-                          onPressed: () {/*TODO: start whatsApp intent*/},
+                          onPressed: () => _detailsViewModel.openWhatsApp(),
                         ),
                       ),
                     ],

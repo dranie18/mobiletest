@@ -62,5 +62,19 @@ abstract class _LeadDetailsViewModelBase with Store {
     });
   }
 
+  @action
+  void openWhatsApp() {
+    final phone = offerDetails.getAuthorPhone();
 
+    AppLauncherHelper.launchWhatsApp(phone.number).then((launched) {
+      errorLaunchingWhatsApp = !launched;
+    });
+  }
+
+  void callClient() {
+    // assuming that we always have at least one phone in the list
+    final phone = offerDetails.getAuthorPhone();
+
+    AppLauncherHelper.launchCallApp(phone.number);
+  }
 }
