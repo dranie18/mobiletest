@@ -6,6 +6,7 @@
 import 'package:app/src/feature/jobs/data/leads/leads_data_source.dart';
 import 'package:app/src/feature/jobs/data/leads/leads_repository.dart';
 import 'package:app/src/models/lead.dart';
+import 'package:app/src/models/lead_details.dart';
 import 'package:app/src/models/operation_result.dart';
 import 'package:app/src/models/self_link.dart';
 
@@ -36,5 +37,10 @@ class DefaultLeadsRepository extends LeadsRepository {
       return OperationResult.success(result.data.offers);
     }
     return OperationResult.failed(result.error);
+  }
+
+  @override
+  Future<OperationResult<LeadDetails, String>> getLeadDetails(SelfLink leadDetailsLink) {
+    return _remoteDataSource.getLeadDetails(leadDetailsLink);
   }
 }

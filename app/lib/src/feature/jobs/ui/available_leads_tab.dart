@@ -5,8 +5,10 @@
 
 import 'package:app/src/dependency_injection/injector.dart';
 import 'package:app/src/feature/jobs/data/leads/leads_repository.dart';
+import 'package:app/src/feature/jobs/ui/lead_details_page.dart';
 import 'package:app/src/feature/jobs/ui/widgets/offer_card.dart';
 import 'package:app/src/feature/jobs/view_models/leads_view_model.dart';
+import 'package:app/src/models/lead.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -35,6 +37,12 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
       });
     })
     );
+  }
+
+  void _onLeadTap(BuildContext context, Lead lead) {
+    Navigator.push(context, MaterialPageRoute(
+        builder: (_) => LeadDetailsPage(leadDetailsLink: lead.detailsLink)
+    ));
   }
 
   @override
@@ -73,7 +81,10 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
                 itemCount: _leadsViewModel.leads.length,
                 itemBuilder: (_, index) {
                   final item = _leadsViewModel.leads.elementAt(index);
-                  return OfferCard(offer: item);
+                  return GestureDetector(
+                    onTap: () => _onLeadTap(context, item),
+                    child: OfferCard(offer: item),
+                  );
                 },
               ),
             ),

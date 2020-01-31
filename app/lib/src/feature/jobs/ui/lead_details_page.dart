@@ -4,84 +4,63 @@
  */
 
 import 'package:app/src/dependency_injection/injector.dart';
-import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
-import 'package:app/src/feature/jobs/ui/lead_details_page.dart';
+import 'package:app/src/feature/jobs/data/leads/leads_repository.dart';
 import 'package:app/src/feature/jobs/ui/widgets/header_text.dart';
-import 'package:app/src/feature/jobs/view_models/offer_details_view_model.dart';
-import 'package:app/src/models/offer.dart';
-import 'package:app/src/models/offer_details.dart';
+import 'package:app/src/feature/jobs/view_models/lead_details_view_model.dart';
+import 'package:app/src/models/lead_details.dart';
+import 'package:app/src/models/self_link.dart';
 import 'package:app/src/ui/common/circular_progress_bar.dart';
 import 'package:app/src/ui/common/dashed_divider.dart';
-import 'package:app/src/ui/common/progress_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
 
-final _scaffoldState = GlobalKey<ScaffoldState>();
+class LeadDetailsPage extends StatefulWidget {
+  final LeadDetails leadDetails;
+  final SelfLink leadDetailsLink;
 
-class OfferDetailsPage extends StatefulWidget {
-  final Offer offer;
-
-  const OfferDetailsPage({@required this.offer}) : assert(offer != null);
+  const LeadDetailsPage({
+    this.leadDetails,
+    this.leadDetailsLink
+  }) : assert(leadDetails != null || leadDetailsLink != null);
 
   @override
-  _OfferDetailsPageState createState() => _OfferDetailsPageState();
+  _LeadDetailsPageState createState() => _LeadDetailsPageState();
 }
 
-class _OfferDetailsPageState extends State<OfferDetailsPage> {
-  final _detailsViewModel =
-      OfferDetailsViewModel(injector.get<OffersRepository>());
-
-  AcceptOfferViewModel get _acceptOfferViewModel =>
-      _detailsViewModel.acceptOfferViewModel;
-
-  final List<ReactionDisposer> _disposers = [];
+class _LeadDetailsPageState extends State<LeadDetailsPage> {
+  final _detailsViewModel = LeadDetailsViewModel(injector.get<LeadsRepository>());
 
   final _answerButtonsHeight = 50.0;
-
-  void _showSnackBar(String message) {
-    _scaffoldState.currentState..removeCurrentSnackBar();
-    _scaffoldState.currentState.showSnackBar(
-      SnackBar(content: Text(message),)
-    );
-  }
 
   @override
   void initState() {
     super.initState();
-    _detailsViewModel.loadOfferDetails(widget.offer);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    _disposers.add(reaction((_) => _acceptOfferViewModel.hasError, (hasError) {
-      if (hasError)
-        _showSnackBar(_acceptOfferViewModel.errorMessage);
-    }));
-    _disposers.add(when((_) => _acceptOfferViewModel.isOfferAccepted, () {
-      Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (_) => LeadDetailsPage(leadDetails: _acceptOfferViewModel.acceptedOffer,)
-      ));
-    }));
-  }
-
-  @override
-  void dispose() {
-    _disposers.forEach((disposer) => disposer());
-    super.dispose();
+    if (widget.leadDetails != null) {
+      _detailsViewModel.setLeadDetails(widget.leadDetails);
+    } else {
+      _detailsViewModel.loadLeadDetails(widget.leadDetailsLink);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final answerButtonsStyle = textTheme.title;
+    final contactButtonsColor = Theme.of(context).scaffoldBackgroundColor;
+    final answerButtonsStyle = textTheme.title.copyWith(
+      color: contactButtonsColor,
+      fontWeight: FontWeight.bold
+    );
 
     return Scaffold(
-      key: _scaffoldState,
       appBar: AppBar(
-        title: Text('Oferta'),
+        title: Observer(
+          builder: (_) {
+            final offerAuthorName = widget.leadDetails?.authorName ??
+                _detailsViewModel.offerDetails?.authorName ??
+                '';
+            return Text(offerAuthorName);
+          },
+        ),
       ),
       body: Observer(
           builder: (_) {
@@ -106,47 +85,56 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
             return SizedBox.shrink();
           }
       ),
-      bottomNavigationBar: Observer(
-        builder: (context) {
-          final hasData = _detailsViewModel.hasData;
-          final isLoadingData = _detailsViewModel.isLoading;
-          final isAcceptingOffer = _detailsViewModel.acceptOfferViewModel
-              .isLoading;
+      bottomNavigationBar: SizedBox.fromSize(
+        size: Size.fromHeight(_answerButtonsHeight),
+        child: Observer(
+            builder: (context) {
+              final showContactsButton = (_detailsViewModel.hasData &&
+                  !_detailsViewModel.isLoading);
 
-          return Visibility(
-            visible: !isLoadingData && hasData,
-            child: Row(
-              children: <Widget>[
-                Expanded(
-                  child: ProgressButton(
-                    Text('Recusar'.toUpperCase(), style: answerButtonsStyle),
-                    height: _answerButtonsHeight,
-                    isLoading: isLoadingData,
-                    disable: isAcceptingOffer,
-                    color: Colors.grey,
-                    onPressed: () => Navigator.pop(context),
+              return Visibility(
+                visible: showContactsButton,
+                child: Container(
+                  color: Colors.white,
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: MaterialButton(
+                          elevation: 0,
+                          child: Text('Ligar'.toUpperCase(), style: answerButtonsStyle),
+                          height: _answerButtonsHeight,
+                          color: Colors.white,
+                          onPressed: ()  {/*TODO: start call intent*/},
+                        ),
+                      ),
+                      VerticalDivider(
+                        indent: 8,
+                        endIndent: 8,
+                        thickness: 1.5,
+                        color: contactButtonsColor,
+                      ),
+                      Expanded(
+                        child: MaterialButton(
+                          elevation: 0,
+                          child: Text('WhatsApp'.toUpperCase(), style: answerButtonsStyle),
+                          height: _answerButtonsHeight,
+                          color: Colors.white,
+                          onPressed: () {/*TODO: start whatsApp intent*/},
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                ),
-                Expanded(
-                  child: ProgressButton(
-                    Text('Aceitar'.toUpperCase(), style: answerButtonsStyle),
-                    height: _answerButtonsHeight,
-                    color: Colors.green,
-                    isLoading: isAcceptingOffer,
-                    onPressed: () => _detailsViewModel.acceptOffer(),
-                ),
-                ),
-              ],
-            ),
-          );
-        }
+              );
+            }
+        ),
       ),
     );
   }
 }
 
 class _DetailsContent extends StatelessWidget {
-  final OfferDetails offerDetails;
+  final LeadDetails offerDetails;
 
   const _DetailsContent(this.offerDetails)
       : assert(offerDetails != null);
@@ -155,12 +143,12 @@ class _DetailsContent extends StatelessWidget {
 
   String _getDistanceInfo() {
     return (StringBuffer('a')
-        ..write(' ')
-        ..write(offerDetails.distance.toString())
-        ..write(' ')
-        ..write('Km')
-        ..write(' ')
-        ..write('de Você')
+      ..write(' ')
+      ..write(offerDetails.distance.toString())
+      ..write(' ')
+      ..write('Km')
+      ..write(' ')
+      ..write('de Você')
     ).toString();
   }
 
@@ -200,7 +188,7 @@ class _DetailsContent extends StatelessWidget {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Icon(Icons.info, color: Theme.of(context).scaffoldBackgroundColor,),
+                    Icon(Icons.info, color: Colors.green),
                     Padding(
                       padding: EdgeInsets.only(left: _contentPadding),
                       child: Column(
@@ -238,11 +226,11 @@ class _DetailsContent extends StatelessWidget {
           alignment: Alignment.center,
           child: Padding(
             padding: EdgeInsets.fromLTRB(_contentPadding, 0, _contentPadding, _contentPadding),
-            child: Text('Aceite o pedido para destravar o contacto!',
+            child: Text('Fale com o cliente o quanto antes',
               style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                fontStyle: FontStyle.italic
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  fontStyle: FontStyle.italic
               ),),
           ),
         )
@@ -252,29 +240,29 @@ class _DetailsContent extends StatelessWidget {
 }
 
 class _ContactArea extends StatelessWidget {
-  final OfferDetails offerDetails;
+  final LeadDetails offerDetails;
 
   const _ContactArea({this.offerDetails}) : assert(offerDetails != null);
-  
+
   @override
   Widget build(BuildContext context) {
-    final textColor = Colors.white.withOpacity(.7);
+    final textColor = Colors.black;
     final textTheme = Theme.of(context).textTheme;
     final textStyle = textTheme.title.copyWith(fontSize: 16, color: textColor);
 
     return Container(
-      color: Colors.lightBlueAccent,
+      color: Colors.green,
       margin: const EdgeInsets.symmetric(vertical: 16),
       padding: const EdgeInsets.all(16),
       constraints: BoxConstraints(
-        minHeight: 50,
-        minWidth: double.infinity
+          minHeight: 50,
+          minWidth: double.infinity
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text('Contacto do Cliente', style: textTheme.title.copyWith(
-            color: textColor
+              color: textColor
           ),),
           const SizedBox(height: 16,),
           Column(
@@ -284,7 +272,7 @@ class _ContactArea extends StatelessWidget {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   children: <Widget>[
-                    Icon(Icons.lock, color: textColor),
+                    Icon(Icons.phone, color: textColor),
                     Padding(
                       padding: const EdgeInsets.only(left: 16),
                       child: Text(phone.number, style: textStyle),
@@ -294,15 +282,15 @@ class _ContactArea extends StatelessWidget {
               );
             }).toList(),
           ),
-        Row(
-          children: <Widget>[
-            Icon(Icons.lock, color: textColor),
-            Padding(
-              padding: const EdgeInsets.only(left: 16),
-              child: Text(offerDetails.authorEmail, style: textStyle)
-            )
-          ],
-        )
+          Row(
+            children: <Widget>[
+              Icon(Icons.mail, color: textColor),
+              Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: Text(offerDetails.authorEmail, style: textStyle)
+              )
+            ],
+          )
           ,
         ],
       ),
@@ -327,7 +315,7 @@ class _ContentArea extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.all(padding),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: children),
     );
   }

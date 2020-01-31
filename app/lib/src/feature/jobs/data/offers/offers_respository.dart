@@ -3,6 +3,7 @@
  *  Created by Pedro Massango on 29/1/2020
  */
 
+import 'package:app/src/models/lead_details.dart';
 import 'package:app/src/models/offer.dart';
 import 'package:app/src/models/offer_details.dart';
 import 'package:app/src/models/operation_result.dart';
@@ -15,4 +16,6 @@ abstract class OffersRepository {
 
   Future<OperationResult<OfferDetails, String>> getOfferDetails(
       SelfLink offerDetailsLink);
+
+  Future<OperationResult<LeadDetails, String>> acceptOffer(SelfLink acceptOfferLink);
 }

@@ -5,25 +5,26 @@
 
 import 'package:app/src/feature/jobs/data/offers/offers_data_source.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
+import 'package:app/src/models/lead_details.dart';
 import 'package:app/src/models/offer.dart';
 import 'package:app/src/models/offer_details.dart';
 import 'package:app/src/models/operation_result.dart';
 import 'package:app/src/models/self_link.dart';
 
 class DefaultOffersRepository implements OffersRepository {
-  final OffersDataSource remoteDataSource;
+  final OffersDataSource _remoteDataSource;
 
-  DefaultOffersRepository(this.remoteDataSource)
-      : assert(remoteDataSource != null);
+  DefaultOffersRepository(this._remoteDataSource)
+      : assert(_remoteDataSource != null);
 
-  SelfLink refreshOffersLink;
+  SelfLink _refreshOffersLink;
 
 
   @override
   Future<OperationResult<List<Offer>, String>> getAllOffers() async {
-    final result = await remoteDataSource.getAllOffers();
+    final result = await _remoteDataSource.getAllOffers();
     if (result.hasSucceeded) {
-      refreshOffersLink = result.data.refreshLink;
+      _refreshOffersLink = result.data.refreshLink;
       return OperationResult.success(result.data.offers);
     }
     return OperationResult.failed(result.error);
@@ -31,11 +32,11 @@ class DefaultOffersRepository implements OffersRepository {
 
   @override
   Future<OperationResult<List<Offer>, String>> refreshOffers() async {
-    ArgumentError.checkNotNull(refreshOffersLink, 'refreshOffersLink');
+    ArgumentError.checkNotNull(_refreshOffersLink, 'refreshOffersLink');
 
-    final result = await remoteDataSource.refreshOffers(refreshOffersLink);
+    final result = await _remoteDataSource.refreshOffers(_refreshOffersLink);
     if (result.hasSucceeded) {
-      refreshOffersLink = result.data.refreshLink;
+      _refreshOffersLink = result.data.refreshLink;
       return OperationResult.success(result.data.offers);
     }
     return OperationResult.failed(result.error);
@@ -43,10 +44,11 @@ class DefaultOffersRepository implements OffersRepository {
 
   @override
   Future<OperationResult<OfferDetails, String>> getOfferDetails(SelfLink offerDetailsLink) {
-    // TODO: implement getOfferDetails
-    return remoteDataSource.getOfferDetails(offerDetailsLink);
+    return _remoteDataSource.getOfferDetails(offerDetailsLink);
   }
 
-
-
+  @override
+  Future<OperationResult<LeadDetails, String>> acceptOffer(SelfLink acceptOfferLink) {
+    return _remoteDataSource.acceptOffer(acceptOfferLink);
+  }
 }

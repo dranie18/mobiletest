@@ -52,7 +52,7 @@ abstract class _OffersViewModelBase with Store {
 
   @action
   void refreshOffers() {
-    if (isLoading) {
+    if (isLoading || !hasData) {
       return;
     }
 
