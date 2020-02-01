@@ -5,7 +5,10 @@
 
 import 'package:app/src/dependency_injection/injector.dart';
 import 'package:app/src/feature/jobs/data/leads/leads_repository.dart';
+import 'package:app/src/feature/jobs/ui/widgets/contacts_area.dart';
 import 'package:app/src/feature/jobs/ui/widgets/header_text.dart';
+import 'package:app/src/feature/jobs/ui/widgets/info_content.dart';
+import 'package:app/src/feature/jobs/ui/widgets/padded_content.dart';
 import 'package:app/src/feature/jobs/view_models/lead_details_view_model.dart';
 import 'package:app/src/models/lead_details.dart';
 import 'package:app/src/models/self_link.dart';
@@ -106,7 +109,7 @@ class _LeadDetailsPageState extends State<LeadDetailsPage> {
                       borderRadius: BorderRadius.vertical(bottom: Radius.circular(16))
                   ),
                   margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                  child: _DetailsContent(_detailsViewModel.offerDetails),
+                  child: _DetailsContent(_detailsViewModel),
                 ),
               );
             return SizedBox.shrink();
@@ -161,17 +164,19 @@ class _LeadDetailsPageState extends State<LeadDetailsPage> {
 }
 
 class _DetailsContent extends StatelessWidget {
-  final LeadDetails offerDetails;
+  final LeadDetailsViewModel detailsViewModel;
 
-  const _DetailsContent(this.offerDetails)
-      : assert(offerDetails != null);
+  const _DetailsContent(this.detailsViewModel)
+      : assert(detailsViewModel != null);
+
+  LeadDetails get leadDetails => detailsViewModel.offerDetails;
 
   final _contentPadding = 16.0;
 
   String _getDistanceInfo() {
     return (StringBuffer('a')
       ..write(' ')
-      ..write(offerDetails.distance.toString())
+      ..write(leadDetails.distance.toString())
       ..write(' ')
       ..write('Km')
       ..write(' ')
@@ -192,63 +197,34 @@ class _DetailsContent extends StatelessWidget {
         ),
         Padding(
           padding: EdgeInsets.all(_contentPadding),
-          child: Text(offerDetails.requestTitle,
+          child: Text(leadDetails.requestTitle,
               style: textTheme.title.copyWith(
                   color: Colors.black, fontWeight: FontWeight.bold)),
         ),
         const DashedDivider(padding: 16),
-        _ContentArea(
+        PaddedContent(
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: HeaderText(offerDetails.authorName),
+              child: HeaderText(leadDetails.authorName),
             ),
-            HeaderText(offerDetails.requestAddress.completeAddress),
+            HeaderText(leadDetails.requestAddress.completeAddress),
             Text(_getDistanceInfo(), style: textTheme.caption,)
           ],
         ),
         const DashedDivider(padding: 16),
-        _ContentArea(
-          children: offerDetails.infoList.map((info) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    Icon(Icons.info, color: Colors.green),
-                    Padding(
-                      padding: EdgeInsets.only(left: _contentPadding),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(top: _contentPadding),
-                            child: HeaderText(info.label),
-                          ),
-                          if (info.hasStringValue)
-                            Text(info.getValueAsString(), style: textTheme.caption,),
-                          if (info.hasListValue)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: info.getValueAsList().map((value) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 4),
-                                  child: Text(value, style: textTheme.caption),
-                                );
-                              }).toList(),
-                            ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-                const SizedBox(height: 8,)
-              ],
-            );
-          }).toList(),
+        InfoContent(
+          iconColor: Colors.green,
+          infoList: leadDetails.infoList,
         ),
-        _ContactArea(offerDetails: offerDetails),
+        ContactArea(
+          mailIcon: Icons.mail,
+          phoneIcon: Icons.phone,
+          textsColor: Colors.black,
+          backgroundColor: Colors.green,
+          phones: leadDetails.authorPhones,
+          email: leadDetails.authorEmail,
+        ),
         Align(
           alignment: Alignment.center,
           child: Padding(
@@ -262,88 +238,6 @@ class _DetailsContent extends StatelessWidget {
           ),
         )
       ],
-    );
-  }
-}
-
-class _ContactArea extends StatelessWidget {
-  final LeadDetails offerDetails;
-
-  const _ContactArea({this.offerDetails}) : assert(offerDetails != null);
-
-  @override
-  Widget build(BuildContext context) {
-    final textColor = Colors.black;
-    final textTheme = Theme.of(context).textTheme;
-    final textStyle = textTheme.title.copyWith(fontSize: 16, color: textColor);
-
-    return Container(
-      color: Colors.green,
-      margin: const EdgeInsets.symmetric(vertical: 16),
-      padding: const EdgeInsets.all(16),
-      constraints: BoxConstraints(
-          minHeight: 50,
-          minWidth: double.infinity
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text('Contacto do Cliente', style: textTheme.title.copyWith(
-              color: textColor
-          ),),
-          const SizedBox(height: 16,),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: offerDetails.authorPhones.map((phone) {
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  children: <Widget>[
-                    Icon(Icons.phone, color: textColor),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 16),
-                      child: Text(phone.number, style: textStyle),
-                    )
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-          Row(
-            children: <Widget>[
-              Icon(Icons.mail, color: textColor),
-              Padding(
-                  padding: const EdgeInsets.only(left: 16),
-                  child: Text(offerDetails.authorEmail, style: textStyle)
-              )
-            ],
-          )
-          ,
-        ],
-      ),
-    );
-  }
-}
-
-class _ContentArea extends StatelessWidget {
-  final double padding;
-  final List<Widget> children;
-
-  const _ContentArea({Key key,
-    this.padding = 16,
-    @required this.children,
-  })
-      : assert(padding != null),
-        assert(children != null),
-        super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(padding),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: children),
     );
   }
 }

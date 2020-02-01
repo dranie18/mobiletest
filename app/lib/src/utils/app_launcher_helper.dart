@@ -6,24 +6,20 @@
 import 'package:url_launcher/url_launcher.dart';
 
 class AppLauncherHelper {
-
-  static Future<bool> launchWhatsApp(String phoneNumber) async {
-    final url = 'whatsapp://send?phone=$phoneNumber';
-    final _canLaunch = await canLaunch(url);
-    if (_canLaunch) {
+  static Future<bool> _launchUrl(String url) async {
+    if (await canLaunch(url)) {
       await launch(url);
       return true;
     }
     return false;
   }
 
-  static Future<bool> launchCallApp(String phoneNumber) async {
-    final url = 'tel: //$phoneNumber';
-    final _canLaunch = await canLaunch(url);
-    if (_canLaunch) {
-      await launch(url);
-      return true;
-    }
-    return false;
-  }
+  static Future<bool> launchWhatsApp(String phoneNumber) async =>
+      _launchUrl('whatsapp://send?phone=$phoneNumber');
+
+  static Future<bool> launchCallApp(String phoneNumber) async =>
+      _launchUrl('tel: //$phoneNumber');
+
+  static Future<bool> launchMailApp(String email) async =>
+      _launchUrl('mailto:$email');
 }
