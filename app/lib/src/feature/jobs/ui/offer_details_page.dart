@@ -110,7 +110,7 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
               );
             if (_detailsViewModel.hasError)
               return NetworkErrorView(
-                "Falha ao carregar os detalhes da oferta!",
+                _detailsViewModel.errorMessage,
                 onRetry: () => _loadOfferDetails(),
               );
             if (_detailsViewModel.hasData)

@@ -106,7 +106,7 @@ class _LeadDetailsPageState extends State<LeadDetailsPage> {
               );
             if (_detailsViewModel.hasError)
               return NetworkErrorView(
-                "Não foi possível carregar os dados da oferta!",
+                _detailsViewModel.errorMessage,
                 onRetry: () => _loadLeadDetails(),
               );
             if (_detailsViewModel.hasData)

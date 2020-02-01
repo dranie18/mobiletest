@@ -8,6 +8,7 @@ import 'package:app/src/feature/jobs/data/api_models/api_leads_response.dart';
 import 'package:app/src/feature/jobs/data/leads/leads_data_source.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_result.dart';
 import 'package:app/src/http_client/api_endpoints.dart';
+import 'package:app/src/http_client/dio_error_utils.dart';
 import 'package:app/src/models/address.dart';
 import 'package:app/src/models/geolocation.dart';
 import 'package:app/src/models/info.dart';
@@ -75,7 +76,11 @@ class LeadsService implements LeadsDataSource {
       final result = _parseResponse(response.data);
       return OperationResult.success(result);
     } on DioError catch (e) {
-      return OperationResult.failed(e.message);
+      String message = e.message;
+      if (DioErrorUtils.isNetworkError(e)) {
+        message = 'Falha de conexão. Verifique sua internet.';
+      }
+      return OperationResult.failed(message);
     }
   }
 
@@ -86,7 +91,11 @@ class LeadsService implements LeadsDataSource {
       final data = _parseResponse(response.data);
       return OperationResult.success(data);
     } on DioError catch (dioError) {
-      return OperationResult.failed(dioError.message);
+      String message = dioError.message;
+      if (DioErrorUtils.isNetworkError(dioError)) {
+        message = 'Falha de conexão. Verifique sua internet.';
+      }
+      return OperationResult.failed(message);
     }
   }
 
@@ -97,7 +106,11 @@ class LeadsService implements LeadsDataSource {
       final data = _parseLeadDetails(response.data);
       return OperationResult.success(data);
     } on DioError catch(dioError) {
-      return OperationResult.failed(dioError.message);
+      String message = dioError.message;
+      if (DioErrorUtils.isNetworkError(dioError)) {
+        message = 'Falha de conexão. Verifique sua internet.';
+      }
+      return OperationResult.failed(message);
     }
   }
 

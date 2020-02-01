@@ -92,7 +92,7 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
             return Center(child: CircularProgressbar());
           if (_leadsViewModel.hasError && !_leadsViewModel.hasData)
             return NetworkErrorView(
-              "Não foi possível carregar os pedidos aceites.",
+              _leadsViewModel.errorMessage,
               onRetry: () => _loadLeads(),
             );
           if (_leadsViewModel.hasData)

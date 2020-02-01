@@ -92,7 +92,7 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
             return Center(child: CircularProgressbar());
           if (offersViewModel.hasError && !offersViewModel.hasData)
             return NetworkErrorView(
-              'Falha ao carregar pedidos',
+              offersViewModel.errorMessage,
               onRetry: () => _loadOffers(),
             );
           if (offersViewModel.hasData)
