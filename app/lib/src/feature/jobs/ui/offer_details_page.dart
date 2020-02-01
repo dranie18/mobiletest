@@ -15,6 +15,7 @@ import 'package:app/src/models/offer.dart';
 import 'package:app/src/models/offer_details.dart';
 import 'package:app/src/ui/common/circular_progress_bar.dart';
 import 'package:app/src/ui/common/dashed_divider.dart';
+import 'package:app/src/ui/common/network_error_view.dart';
 import 'package:app/src/ui/common/progress_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -51,10 +52,14 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
     );
   }
 
+  void _loadOfferDetails() {
+    _detailsViewModel.loadOfferDetails(widget.offer);
+  }
+
   @override
   void initState() {
     super.initState();
-    _detailsViewModel.loadOfferDetails(widget.offer);
+    _loadOfferDetails();
   }
 
   @override
@@ -104,7 +109,10 @@ class _OfferDetailsPageState extends State<OfferDetailsPage> {
                 child: const Center(child: CircularProgressbar()),
               );
             if (_detailsViewModel.hasError)
-              return Text("Falha ao carregar os detalhes da oferta!");
+              return NetworkErrorView(
+                "Falha ao carregar os detalhes da oferta!",
+                onRetry: () => _loadOfferDetails(),
+              );
             if (_detailsViewModel.hasData)
               return SingleChildScrollView(
                 child: Container(

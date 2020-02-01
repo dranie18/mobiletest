@@ -30,7 +30,7 @@ class DefaultLeadsRepository extends LeadsRepository {
 
   @override
   Future<OperationResult<List<Lead>, String>> refreshLeads() async {
-    ArgumentError.checkNotNull(refreshLeadsLink);
+    ArgumentError.checkNotNull(refreshLeadsLink, 'refreshLeadsLink');
     final result = await _remoteDataSource.refreshLeads(refreshLeadsLink);
     if (result.hasSucceeded) {
       refreshLeadsLink = result.data.refreshLink;

@@ -7,6 +7,8 @@ import 'package:app/src/feature/jobs/ui/available_leads_tab.dart';
 import 'package:app/src/feature/jobs/ui/available_offers_tab.dart';
 import 'package:flutter/material.dart';
 
+final jobsPageScaffoldKey = GlobalKey<ScaffoldState>();
+
 class JobsPage extends StatefulWidget {
   @override
   _JobsPageState createState() => _JobsPageState();
@@ -44,6 +46,7 @@ class _JobsPageState extends State<JobsPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: jobsPageScaffoldKey,
       drawer: Container(color: Colors.white, width: 270,),
       appBar: AppBar(
         title: Text('Pedidos'),

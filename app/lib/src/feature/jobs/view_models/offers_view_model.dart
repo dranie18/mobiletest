@@ -26,6 +26,9 @@ abstract class _OffersViewModelBase with Store {
   bool isLoading = false;
 
   @observable
+  bool isRefreshing = false;
+
+  @observable
   String errorMessage = _defaultErrorMessage;
 
   @computed
@@ -36,6 +39,10 @@ abstract class _OffersViewModelBase with Store {
 
   @action
   void loadAllOffers() {
+    if (isLoading || isRefreshing) {
+      return;
+    }
+
     isLoading = true;
     errorMessage = _defaultErrorMessage;
 
@@ -52,15 +59,15 @@ abstract class _OffersViewModelBase with Store {
 
   @action
   void refreshOffers() {
-    if (isLoading || !hasData) {
+    if (isLoading || isRefreshing || !hasData) {
       return;
     }
 
-    isLoading = true;
+    isRefreshing = true;
     errorMessage = _defaultErrorMessage;
 
     _offersRepository.refreshOffers().then((result) {
-      isLoading = result.isPending;
+      isRefreshing = result.isPending;
 
       if (result.hasSucceeded) {
         offers = result.data;

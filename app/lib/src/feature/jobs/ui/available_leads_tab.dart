@@ -5,10 +5,13 @@
 
 import 'package:app/src/dependency_injection/injector.dart';
 import 'package:app/src/feature/jobs/data/leads/leads_repository.dart';
+import 'package:app/src/feature/jobs/ui/jobs_page.dart';
 import 'package:app/src/feature/jobs/ui/lead_details_page.dart';
 import 'package:app/src/feature/jobs/ui/widgets/offer_card.dart';
 import 'package:app/src/feature/jobs/view_models/leads_view_model.dart';
 import 'package:app/src/models/lead.dart';
+import 'package:app/src/ui/common/circular_progress_bar.dart';
+import 'package:app/src/ui/common/network_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -28,14 +31,25 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
 
   void _registerViewModelListeners() {
     disposers.add(
-      reaction((_) => _leadsViewModel.isLoading, (isLoading) {
+      reaction((_) => _leadsViewModel.isRefreshing, (isRefreshing) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (isLoading)
+        if (isRefreshing)
           _refreshController.requestRefresh();
         else
           _refreshController.refreshCompleted();
       });
-    })
+    }));
+    disposers.add(
+        reaction((_) => _leadsViewModel.hasData && _leadsViewModel.hasError,
+            (showSnackBarError) {
+      if (showSnackBarError) _showSnackBar(_leadsViewModel.errorMessage);
+    }));
+  }
+
+  void _showSnackBar(String message) {
+    jobsPageScaffoldKey.currentState.removeCurrentSnackBar();
+    jobsPageScaffoldKey.currentState.showSnackBar(
+        SnackBar(content: Text(message))
     );
   }
 
@@ -45,11 +59,15 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
     ));
   }
 
+  void _loadLeads() {
+    _leadsViewModel.loadLeads();
+  }
+
   @override
   void initState() {
     super.initState();
     _registerViewModelListeners();
-    _leadsViewModel.loadLeads();
+    _loadLeads();
   }
 
   @override
@@ -68,41 +86,31 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
     return SmartRefresher(
       controller: _refreshController,
       onRefresh: () => _leadsViewModel.refreshLeads(),
-      child: ListView(
-        primary: true,
-        children: <Widget>[
-          Observer(
-            builder: (_) => Visibility(
-              visible: _leadsViewModel.hasData,
-              child: ListView.builder(
-                shrinkWrap: true,
-                primary: false,
-                padding: const EdgeInsets.only(top: 8),
-                itemCount: _leadsViewModel.leads.length,
-                itemBuilder: (_, index) {
-                  final item = _leadsViewModel.leads.elementAt(index);
-                  return GestureDetector(
-                    onTap: () => _onLeadTap(context, item),
-                    child: OfferCard(offer: item),
-                  );
-                },
-              ),
-            ),
-          ),
-          Observer(
-            builder: (_) => Visibility(
-              visible: _leadsViewModel.hasError,
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    _leadsViewModel.errorMessage,
-                    style: Theme.of(context).textTheme.headline,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+      child: Observer(
+        builder: (_) {
+          if (_leadsViewModel.isLoading)
+            return Center(child: CircularProgressbar());
+          if (_leadsViewModel.hasError && !_leadsViewModel.hasData)
+            return NetworkErrorView(
+              "Não foi possível carregar os pedidos aceites.",
+              onRetry: () => _loadLeads(),
+            );
+          if (_leadsViewModel.hasData)
+            return ListView.builder(
+              shrinkWrap: true,
+              primary: false,
+              padding: const EdgeInsets.only(top: 8),
+              itemCount: _leadsViewModel.leads.length,
+              itemBuilder: (_, index) {
+                final item = _leadsViewModel.leads.elementAt(index);
+                return GestureDetector(
+                  onTap: () => _onLeadTap(context, item),
+                  child: OfferCard(offer: item),
+                );
+              },
+            );
+          return SizedBox.shrink();
+        },
       ),
     );
   }

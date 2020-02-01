@@ -28,6 +28,9 @@ abstract class _LeadsViewModelBase with Store {
   bool isLoading = false;
 
   @observable
+  bool isRefreshing = false;
+
+  @observable
   String errorMessage = _defaultErrorMessage;
 
   @computed
@@ -55,15 +58,15 @@ abstract class _LeadsViewModelBase with Store {
 
   @action
   void refreshLeads() {
-    if (isLoading) {
+    if (isLoading || isRefreshing || !hasData) {
       return;
     }
 
-    isLoading = true;
+    isRefreshing = true;
     errorMessage = _defaultErrorMessage;
 
     _leadsRepository.refreshLeads().then((result) {
-      isLoading = result.isPending;
+      isRefreshing = result.isPending;
       if (result.hasSucceeded) {
         leads = result.data;
       } else if (result.hasFailed) {

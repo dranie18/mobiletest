@@ -5,10 +5,13 @@
 
 import 'package:app/src/dependency_injection/injector.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
+import 'package:app/src/feature/jobs/ui/jobs_page.dart';
 import 'package:app/src/feature/jobs/ui/offer_details_page.dart';
 import 'package:app/src/feature/jobs/ui/widgets/offer_card.dart';
 import 'package:app/src/feature/jobs/view_models/offers_view_model.dart';
 import 'package:app/src/models/offer.dart';
+import 'package:app/src/ui/common/circular_progress_bar.dart';
+import 'package:app/src/ui/common/network_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -27,15 +30,27 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
   final RefreshController _refreshController = RefreshController();
 
   void _registerViewModelListeners() {
-    disposers.add(reaction<bool>((_) => offersViewModel.isLoading, (isLoading) {
+    disposers.add(reaction<bool>((_) => offersViewModel.isRefreshing, (isRefreshing) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (isLoading) {
+        if (isRefreshing) {
           _refreshController.requestRefresh();
         } else {
           _refreshController.refreshCompleted();
         }
       });
     }));
+    disposers.add(
+        reaction((_) => offersViewModel.hasError && offersViewModel.hasData,
+            (showErrorMessage) {
+      if (showErrorMessage) _showSnackBar(offersViewModel.errorMessage);
+    }));
+  }
+
+  void _showSnackBar(String message) {
+    jobsPageScaffoldKey.currentState.removeCurrentSnackBar();
+    jobsPageScaffoldKey.currentState.showSnackBar(
+        SnackBar(content: Text(message))
+    );
   }
 
   void _onOfferTap(BuildContext context, Offer offer) {
@@ -44,11 +59,15 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
     ));
   }
 
+  void _loadOffers() {
+    offersViewModel.loadAllOffers();
+  }
+
   @override
   void initState() {
     super.initState();
     _registerViewModelListeners();
-    offersViewModel.loadAllOffers();
+    _loadOffers();
   }
 
   @override
@@ -67,38 +86,31 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
     return SmartRefresher(
       controller: _refreshController,
       onRefresh: () => offersViewModel.refreshOffers(),
-      child: ListView(
-          primary: true,
-          children: <Widget>[
-            Observer(
-              builder: (_) => Visibility(
-                visible: offersViewModel.hasData,
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  primary: false,
-                  padding: const EdgeInsets.only(top: 8),
-                  itemCount: offersViewModel.offers.length,
-                  itemBuilder: (context, index) {
-                    final item = offersViewModel.offers.elementAt(index);
-                    return GestureDetector(
-                      onTap: () => _onOfferTap(context, item),
-                        child: OfferCard(offer: item));
-                  },
-                ),
-              ),
-            ),
-            Observer(
-              builder: (_) => Visibility(
-                visible: offersViewModel.hasError,
-                child: Column(
-                  children: <Widget>[
-                    Text(offersViewModel.errorMessage, style: Theme.of(context).textTheme.headline,),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        )
+      child: Observer(
+        builder: (_) {
+          if (offersViewModel.isLoading)
+            return Center(child: CircularProgressbar());
+          if (offersViewModel.hasError && !offersViewModel.hasData)
+            return NetworkErrorView(
+              'Falha ao carregar pedidos',
+              onRetry: () => _loadOffers(),
+            );
+          if (offersViewModel.hasData)
+            return ListView.builder(
+              shrinkWrap: true,
+              primary: false,
+              padding: const EdgeInsets.only(top: 8),
+              itemCount: offersViewModel.offers.length,
+              itemBuilder: (context, index) {
+                final item = offersViewModel.offers.elementAt(index);
+                return GestureDetector(
+                    onTap: () => _onOfferTap(context, item),
+                    child: OfferCard(offer: item));
+              },
+            );
+          return SizedBox.shrink();
+        }
+      ),
     );
   }
 }

@@ -14,6 +14,7 @@ import 'package:app/src/models/lead_details.dart';
 import 'package:app/src/models/self_link.dart';
 import 'package:app/src/ui/common/circular_progress_bar.dart';
 import 'package:app/src/ui/common/dashed_divider.dart';
+import 'package:app/src/ui/common/network_error_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
@@ -54,15 +55,19 @@ class _LeadDetailsPageState extends State<LeadDetailsPage> {
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _registerListeners();
+  void _loadLeadDetails() {
     if (widget.leadDetails != null) {
       _detailsViewModel.setLeadDetails(widget.leadDetails);
     } else {
       _detailsViewModel.loadLeadDetails(widget.leadDetailsLink);
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _registerListeners();
+    _loadLeadDetails();
   }
 
   @override
@@ -100,7 +105,10 @@ class _LeadDetailsPageState extends State<LeadDetailsPage> {
                 child: const Center(child: CircularProgressbar()),
               );
             if (_detailsViewModel.hasError)
-              return Text("Falha ao carregar os detalhes da oferta!");
+              return NetworkErrorView(
+                "Não foi possível carregar os dados da oferta!",
+                onRetry: () => _loadLeadDetails(),
+              );
             if (_detailsViewModel.hasData)
               return SingleChildScrollView(
                 child: Container(
