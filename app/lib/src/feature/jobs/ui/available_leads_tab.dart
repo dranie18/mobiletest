@@ -121,10 +121,3 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
   }
 }
 
-class DataWidget extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container();
-  }
-}
-

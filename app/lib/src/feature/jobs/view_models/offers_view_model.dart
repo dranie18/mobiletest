@@ -28,6 +28,9 @@ abstract class _OffersViewModelBase with Store {
   @observable
   bool isRefreshing = false;
 
+  @computed
+  bool get canRefreshData => hasData;
+
   @observable
   String errorMessage = _defaultErrorMessage;
 
@@ -59,7 +62,7 @@ abstract class _OffersViewModelBase with Store {
 
   @action
   void refreshOffers() {
-    if (isLoading || isRefreshing || !hasData) {
+    if (isLoading || isRefreshing || !canRefreshData) {
       return;
     }
 

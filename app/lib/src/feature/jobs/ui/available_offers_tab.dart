@@ -24,13 +24,13 @@ class AvailableOffersTab extends StatefulWidget {
 
 class _AvailableOffersTabState extends State<AvailableOffersTab>
   with AutomaticKeepAliveClientMixin {
-  final offersViewModel = OffersViewModel(injector.get<OffersRepository>());
+  final _offersViewModel = OffersViewModel(injector.get<OffersRepository>());
   final List<ReactionDisposer> disposers = [];
 
   final RefreshController _refreshController = RefreshController();
 
   void _registerViewModelListeners() {
-    disposers.add(reaction<bool>((_) => offersViewModel.isRefreshing, (isRefreshing) {
+    disposers.add(reaction<bool>((_) => _offersViewModel.isRefreshing, (isRefreshing) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (isRefreshing) {
           _refreshController.requestRefresh();
@@ -40,9 +40,9 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
       });
     }));
     disposers.add(
-        reaction((_) => offersViewModel.hasError && offersViewModel.hasData,
+        reaction((_) => _offersViewModel.hasError && _offersViewModel.hasData,
             (showErrorMessage) {
-      if (showErrorMessage) _showSnackBar(offersViewModel.errorMessage);
+      if (showErrorMessage) _showSnackBar(_offersViewModel.errorMessage);
     }));
   }
 
@@ -60,7 +60,7 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
   }
 
   void _loadOffers() {
-    offersViewModel.loadAllOffers();
+    _offersViewModel.loadAllOffers();
   }
 
   @override
@@ -83,34 +83,39 @@ class _AvailableOffersTabState extends State<AvailableOffersTab>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return SmartRefresher(
-      controller: _refreshController,
-      onRefresh: () => offersViewModel.refreshOffers(),
-      child: Observer(
-        builder: (_) {
-          if (offersViewModel.isLoading)
-            return Center(child: CircularProgressbar());
-          if (offersViewModel.hasError && !offersViewModel.hasData)
-            return NetworkErrorView(
-              offersViewModel.errorMessage,
-              onRetry: () => _loadOffers(),
-            );
-          if (offersViewModel.hasData)
-            return ListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              padding: const EdgeInsets.only(top: 8),
-              itemCount: offersViewModel.offers.length,
-              itemBuilder: (context, index) {
-                final item = offersViewModel.offers.elementAt(index);
-                return GestureDetector(
-                    onTap: () => _onOfferTap(context, item),
-                    child: OfferCard(offer: item));
-              },
-            );
-          return SizedBox.shrink();
-        }
-      ),
+    return Observer(
+      builder: (_) {
+        return SmartRefresher(
+          controller: _refreshController,
+          enablePullDown: _offersViewModel.canRefreshData,
+          onRefresh: () => _offersViewModel.refreshOffers(),
+          child: Observer(
+            builder: (_) {
+              if (_offersViewModel.isLoading)
+                return Center(child: CircularProgressbar());
+              if (_offersViewModel.hasError && !_offersViewModel.hasData)
+                return NetworkErrorView(
+                  _offersViewModel.errorMessage,
+                  onRetry: () => _loadOffers(),
+                );
+              if (_offersViewModel.hasData)
+                return ListView.builder(
+                  shrinkWrap: true,
+                  primary: false,
+                  padding: const EdgeInsets.only(top: 8),
+                  itemCount: _offersViewModel.offers.length,
+                  itemBuilder: (context, index) {
+                    final item = _offersViewModel.offers.elementAt(index);
+                    return GestureDetector(
+                        onTap: () => _onOfferTap(context, item),
+                        child: OfferCard(offer: item));
+                  },
+                );
+              return SizedBox.shrink();
+            }
+          ),
+        );
+      }
     );
   }
 }
