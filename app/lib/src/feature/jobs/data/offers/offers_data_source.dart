@@ -5,7 +5,6 @@
 
 import 'package:app/src/feature/jobs/data/offers/offers_result.dart';
 import 'package:app/src/models/lead_details.dart';
-import 'package:app/src/models/offer.dart';
 import 'package:app/src/models/offer_details.dart';
 import 'package:app/src/models/operation_result.dart';
 import 'package:app/src/models/self_link.dart';

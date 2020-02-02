@@ -15,7 +15,6 @@ import 'package:app/src/feature/jobs/data/offers/offers_data_source.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_local_data_source.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_respository.dart';
 import 'package:app/src/feature/jobs/data/offers/offers_service.dart';
-import 'package:app/src/http_client/dio_builder.dart';
 import 'package:dio/dio.dart';
 import 'package:meta/meta.dart';
 
