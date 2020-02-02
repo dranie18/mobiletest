@@ -83,35 +83,48 @@ class _AvailableLeadsTabState extends State<AvailableLeadsTab>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return SmartRefresher(
-      controller: _refreshController,
-      onRefresh: () => _leadsViewModel.refreshLeads(),
-      child: Observer(
-        builder: (_) {
-          if (_leadsViewModel.isLoading)
-            return Center(child: CircularProgressbar());
-          if (_leadsViewModel.hasError && !_leadsViewModel.hasData)
-            return NetworkErrorView(
-              _leadsViewModel.errorMessage,
-              onRetry: () => _loadLeads(),
-            );
-          if (_leadsViewModel.hasData)
-            return ListView.builder(
-              shrinkWrap: true,
-              primary: false,
-              padding: const EdgeInsets.only(top: 8),
-              itemCount: _leadsViewModel.leads.length,
-              itemBuilder: (_, index) {
-                final item = _leadsViewModel.leads.elementAt(index);
-                return GestureDetector(
-                  onTap: () => _onLeadTap(context, item),
-                  child: OfferCard(offer: item),
+    return Observer(
+      builder: (_) {
+        return SmartRefresher(
+          controller: _refreshController,
+          enablePullDown: _leadsViewModel.canRefreshData,
+          onRefresh: () => _leadsViewModel.refreshLeads(),
+          child: Observer(
+            builder: (_) {
+              if (_leadsViewModel.isLoading)
+                return Center(child: CircularProgressbar());
+              if (_leadsViewModel.hasError && !_leadsViewModel.hasData)
+                return NetworkErrorView(
+                  _leadsViewModel.errorMessage,
+                  onRetry: () => _loadLeads(),
                 );
-              },
-            );
-          return SizedBox.shrink();
-        },
-      ),
+              if (_leadsViewModel.hasData)
+                return ListView.builder(
+                  shrinkWrap: true,
+                  primary: false,
+                  padding: const EdgeInsets.only(top: 8),
+                  itemCount: _leadsViewModel.leads.length,
+                  itemBuilder: (_, index) {
+                    final item = _leadsViewModel.leads.elementAt(index);
+                    return GestureDetector(
+                      onTap: () => _onLeadTap(context, item),
+                      child: OfferCard(offer: item),
+                    );
+                  },
+                );
+              return SizedBox.shrink();
+            },
+          ),
+        );
+      }
     );
   }
 }
+
+class DataWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+

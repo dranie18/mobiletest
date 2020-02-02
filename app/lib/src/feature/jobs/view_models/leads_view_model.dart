@@ -30,6 +30,9 @@ abstract class _LeadsViewModelBase with Store {
   @observable
   bool isRefreshing = false;
 
+  @computed
+  bool get canRefreshData => hasData;
+
   @observable
   String errorMessage = _defaultErrorMessage;
 
@@ -58,7 +61,7 @@ abstract class _LeadsViewModelBase with Store {
 
   @action
   void refreshLeads() {
-    if (isLoading || isRefreshing || !hasData) {
+    if (isLoading || isRefreshing || !canRefreshData) {
       return;
     }
 
