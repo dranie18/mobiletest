@@ -3,6 +3,7 @@
  *  Created by Pedro Massango on 29/1/2020
  */
 
+import 'package:app/src/exceptions/not_implemented_exception.dart';
 import 'package:app/src/feature/jobs/data/api_models/api_lead_details_response.dart';
 import 'package:app/src/feature/jobs/data/api_models/api_offer_details_response.dart';
 import 'package:app/src/feature/jobs/data/api_models/api_offers_response.dart';
@@ -170,6 +171,11 @@ class OffersService implements OffersDataSource {
       }
       return OperationResult.failed(message);
     }
+  }
+
+  @override
+  Future<void> saveAllOffers(OffersResult offersResult) {
+    throw notImplementedException;
   }
 
 }

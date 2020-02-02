@@ -46,7 +46,7 @@ abstract class _OffersViewModelBase with Store {
     isLoading = true;
     errorMessage = _defaultErrorMessage;
 
-    _offersRepository.getAllOffers().then((result) {
+    _offersRepository.getAllOffers().listen((result) {
       isLoading = result.isPending;
 
       if (result.hasSucceeded) {

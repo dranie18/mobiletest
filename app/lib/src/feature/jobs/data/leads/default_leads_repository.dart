@@ -20,8 +20,10 @@ class DefaultLeadsRepository extends LeadsRepository {
 
   @override
   Future<OperationResult<List<Lead>, String>> getAllLeads()  async {
+    // TODO: load cached data
     final result = await _remoteDataSource.getAllLeads();
     if (result.hasSucceeded) {
+      // TODO: save new data
       refreshLeadsLink = result.data.refreshLink;
       return OperationResult.success(result.data.offers);
     }
@@ -34,6 +36,7 @@ class DefaultLeadsRepository extends LeadsRepository {
     final result = await _remoteDataSource.refreshLeads(refreshLeadsLink);
     if (result.hasSucceeded) {
       refreshLeadsLink = result.data.refreshLink;
+      //TODO: save refreshed data
       return OperationResult.success(result.data.offers);
     }
     return OperationResult.failed(result.error);

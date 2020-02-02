@@ -4,8 +4,12 @@
  */
 
 import 'package:app/src/models/geolocation.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:meta/meta.dart';
 
+part 'address.g.dart';
+
+@JsonSerializable(explicitToJson: true)
 class Address {
   final String city;
   final String neighborhood;
@@ -22,4 +26,8 @@ class Address {
         assert(neighborhood != null);
 
   String get completeAddress => '$neighborhood - $city';
+
+  factory Address.fromJson(Map<String, dynamic> json) => _$AddressFromJson(json);
+
+  Map<String, dynamic> toJson() => _$AddressToJson(this);
 }

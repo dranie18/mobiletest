@@ -5,6 +5,7 @@
 
 import 'package:app/src/feature/jobs/data/offers/offers_result.dart';
 import 'package:app/src/models/lead_details.dart';
+import 'package:app/src/models/offer.dart';
 import 'package:app/src/models/offer_details.dart';
 import 'package:app/src/models/operation_result.dart';
 import 'package:app/src/models/self_link.dart';
@@ -12,6 +13,8 @@ import 'package:app/src/models/self_link.dart';
 abstract class OffersDataSource {
 
   Future<OperationResult<OffersResult, String>> getAllOffers();
+
+  Future<void> saveAllOffers(OffersResult offersResult);
 
   Future<OperationResult<OffersResult, String>> refreshOffers(
       SelfLink refreshLink);

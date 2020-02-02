@@ -16,9 +16,11 @@ dependencies:
   flutter_mobx:
   mobx_codegen:
   # Local Database
-  moor_flutter:
+  moor_ffi:
   moor_generator:
-  # For the required annotation
+  path:
+  path_provider:
+  # For the @required annotation
   meta:
   # Service Locator
   get_it: ^3.1.0
@@ -27,7 +29,7 @@ dependencies:
   # Json serializer helper
   json_serializable:
   json_annotation: ^3.0.1
-  #  i18n
+  # for app i18n
   intl:
   # Pull to refresh
   pull_to_refresh: ^1.5.8
